@@ -1,0 +1,204 @@
+<!doctype html><html lang="es">
+  <head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#166534"><link rel="manifest" href="manifest.json"><title>Mi Droguero 3.0</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#172018}
+header{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff;padding:18px;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:25px}header p{margin:5px 0}.wrap{max-width:1100px;margin:auto;padding:14px}
+.panel,.card{background:#fff;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #0001}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.num{font-size:28px;font-weight:bold;color:#166534}small{color:#64748b}input,select,textarea{width:100%;padding:11px;border:1px solid #cbd5d1;border-radius:10px;font-size:15px}textarea{min-height:80px}
+label{font-size:13px;font-weight:bold;display:block;margin-bottom:5px}.full{grid-column:1/-1}
+button{border:0;border-radius:10px;padding:11px 15px;font-weight:bold;cursor:pointer;background:#166534;color:#fff}.secondary{background:#e2e8e5;color:#172018}.danger{background:#b91c1c}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:9px;position:sticky;top:79px;z-index:4}
+nav button{white-space:nowrap;background:#e8eeea;color:#172018;border-radius:20px}nav button.active{background:#166534;color:#fff}
+.view{display:none}.view.active{display:block}.hide{display:none!important}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}.tablewrap{overflow:auto}
+.badge{padding:4px 7px;border-radius:99px;font-size:11px;font-weight:bold;background:#e2e8f0}.ok{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}.bad{background:#fee2e2;color:#991b1b}
+.alert{padding:10px;border-radius:10px;margin:6px 0;background:#f1f5f2}.alert.warn{background:#fffbeb;color:#92400e}.alert.bad{background:#fef2f2;color:#991b1b}
+.login{max-width:520px;margin:35px auto}.role{display:grid;grid-template-columns:1fr 1fr;gap:10px}.role button{padding:18px}.install{background:#fef3c7;color:#92400e;border-left:5px solid #d97706}
+@media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style></head><body>
+<header><h1>🧪 Mi Droguero 3.0</h1><p>Inventario colaborativo · Laboratorio escolar simulado</p></header>
+<div id="login" class="wrap"><div class="panel login"><h2>Ingresar</h2><p>Elegí tu modo de acceso.</p>
+<div class="role"><button onclick="entrar('alumno')">👨‍🎓 Alumno</button><button onclick="entrar('docente')">👩‍🏫 Docente</button></div>
+<div class="alert install">📲 <b>Instalar en el celular:</b> cuando la app esté publicada con HTTPS, usá “Instalar aplicación” o “Agregar a pantalla de inicio”.</div>
+<button class="secondary" onclick="installApp()">📲 Instalar Mi Droguero</button></div></div>
+
+<div id="app" class="hide"><nav>
+<button class="active" onclick="view('inicio',this)">Inicio</button><button onclick="view('inventario',this)">Inventario</button>
+<button onclick="view('registrar',this)">Registrar</button><button onclick="view('etiqueta',this)">Etiquetas</button>
+<button onclick="view('seguridad',this)">Seguridad</button><button id="docnav" onclick="view('docente',this)">Docente</button><button onclick="logout()">Salir</button>
+</nav><main class="wrap">
+
+<section id="inicio" class="view active"><div class="cards">
+<div class="card"><small>Productos</small><div id="total" class="num">0</div></div><div class="card"><small>Próximos a vencer</small><div id="prox" class="num">0</div></div>
+<div class="card"><small>Vencidos</small><div id="venc" class="num">0</div></div><div class="card"><small>Registros</small><div id="reg" class="num">0</div></div></div>
+<div class="panel"><h2>⚠️ Alertas</h2><div id="alerts"></div></div>
+<div class="panel"><h2>📲 Acceso mediante QR</h2><p>La docente puede convertir la URL pública de esta app en un código QR. Los alumnos lo escanean desde el celular.</p></div>
+<div class="panel"><h2>Proyecto</h2><p><b>CONSTRUIMOS → ETIQUETAMOS → CLASIFICAMOS → REGISTRAMOS → CONTROLAMOS</b></p>
+<p>Aplicación educativa para un droguero simulado. No utilizar para gestionar sustancias químicas peligrosas reales.</p></div></section>
+
+<section id="inventario" class="view"><div class="panel"><h2>📋 Inventario</h2><input id="search" placeholder="🔎 Buscar..." oninput="render()">
+<div class="actions"><button onclick="csv()">⬇️ Exportar CSV</button><button class="secondary" onclick="window.print()">🖨️ Imprimir</button></div>
+<div class="tablewrap"><table><thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Cantidad</th><th>Vencimiento</th><th>Ubicación</th><th>Alumno</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div></section>
+
+<section id="registrar" class="view"><div class="panel"><h2>➕ Registrar producto</h2><form id="form" class="grid">
+<div><label>Código *</label><input name="codigo" required></div><div><label>Producto *</label><input name="nombre" required></div>
+<div><label>Categoría *</label><select name="categoria" required><option value="">Seleccionar</option><option>Ácido</option><option>Base</option><option>Inflamable</option><option>Corrosiva</option><option>Tóxica</option><option>Reactiva</option><option>Oxidante</option><option>Otra</option></select></div>
+<div><label>Estado físico</label><select name="estado"><option>Sólido</option><option>Líquido</option><option>Gaseoso</option><option>Simulado</option></select></div>
+<div><label>Cantidad *</label><input name="cantidad" type="number" min="0" step=".01" required></div><div><label>Unidad</label><select name="unidad"><option>unidades</option><option>mL</option><option>L</option><option>g</option><option>kg</option></select></div>
+<div><label>Fecha de ingreso</label><input name="ingreso" type="date"></div><div><label>Fecha de vencimiento</label><input name="vencimiento" type="date"></div>
+<div><label>Ubicación</label><input name="ubicacion"></div><div><label>Riesgo</label><select name="riesgo"><option>Bajo</option><option>Medio</option><option>Alto</option></select></div>
+<div><label>Estado del envase</label><select name="envase"><option>Bueno</option><option>Con observaciones</option><option>Dañado</option></select></div>
+<div class="full"><label>Observaciones</label><textarea name="observaciones"></textarea></div><div class="full"><button>💾 Guardar</button></div>
+</form></div></section>
+
+<section id="etiqueta" class="view"><div class="panel"><h2>🏷️ Etiquetas</h2><select id="label" onchange="label()"></select><div id="labelout"></div></div></section>
+<section id="seguridad" class="view"><div class="panel"><h2>🛡️ Seguridad</h2><ul><li>Usar materiales simulados o autorizados por el docente.</li><li>No probar, oler ni manipular sustancias desconocidas.</li><li>Mantener frascos identificados y cerrados.</li><li>No mezclar sustancias.</li><li>Informar derrames, roturas o situaciones inseguras.</li></ul></div></section>
+<section id="docente" class="view"><div class="panel"><h2>👩‍🏫 Panel docente</h2><div class="cards">
+<div class="card"><small>Productos</small><div id="dtotal" class="num">0</div></div><div class="card"><small>Riesgo alto</small><div id="dalto" class="num">0</div></div>
+<div class="card"><small>Envases observados</small><div id="dobs" class="num">0</div></div><div class="card"><small>Alumnos</small><div id="dalumnos" class="num">0</div></div></div>
+<div class="panel"><h3>📊 Categorías</h3><div id="cats"></div></div><div class="panel"><h3>👥 Registros por alumno</h3><div id="students"></div></div>
+<div class="panel"><b>☁️ Estado:</b> demo local. Para base compartida hay que conectar Supabase y publicar con HTTPS.</div></div></section>
+</main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase_config.js"></script>
+<script>
+const KEY='miDroguero30_demo';
+window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let role='',items=JSON.parse(localStorage.getItem(KEY)||'[]'),deferredPrompt=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e});
+async function installApp(){if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null}else alert('Publicá la app con HTTPS y elegí “Instalar aplicación” o “Agregar a pantalla de inicio”.')}
+function loginEl(id, ocultar){
+  document.getElementById(id).classList.toggle('hide', ocultar);
+}
+async function logout(){
+  await db.auth.signOut();
+
+  role = '';
+  items = [];
+
+  loginEl('login', false);
+  loginEl('app', true);
+}
+async function entrar(r){
+  alert("ESTOY USANDO LA NUEVA FUNCIÓN LOGIN");
+
+  const email = prompt(
+    r === 'docente'
+      ? 'Ingresá el correo del docente:'
+      : 'Ingresá el correo del alumno:'
+  );
+
+  if(!email) return;
+
+  const password = prompt('Ingresá la contraseña:');
+
+  if(!password) return;
+
+  const { data, error } = await db.auth.signInWithPassword({
+    email: email.trim(),
+    password: password
+  });
+
+  if(error){
+    console.error('Error de Supabase:', error);
+    alert('No se pudo ingresar: ' + error.message);
+    return;
+  }
+
+  if(!data.session){
+    alert('El usuario fue reconocido, pero no se creó una sesión.');
+    return;
+  }
+
+  role = r;
+
+  loginEl('login', true);
+  loginEl('app', false);
+
+  document
+    .getElementById('docnav')
+    .classList.toggle('hide', r !== 'docente');
+
+  render();
+}
+
+function view(id,b){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}
+function save(){localStorage.setItem(KEY,JSON.stringify(items));render()} 
+function days(d){
+  if(!d) return null;
+
+  return Math.ceil(
+    (new Date(d+'T23:59:59')-new Date())/86400000
+  );
+}
+
+function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+async function cargarProductos(){
+  const { data, error } = await db
+    .from('productos')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if(error){
+    console.error('Error al cargar productos:', error);
+    alert('No se pudieron cargar los productos: ' + error.message);
+    return;
+  }
+
+  items = data || [];
+
+  localStorage.setItem(KEY, JSON.stringify(items));
+
+  render();
+}
+document.getElementById('form').onsubmit = async e => {
+  e.preventDefault();
+
+  let d = Object.fromEntries(new FormData(e.target));
+
+  delete d.id;
+  d.cantidad = Number(d.cantidad);
+  d.alumno = role === 'alumno' ? 'Alumno' : 'Docente';
+
+  const { data, error } = await db
+    .from('productos')
+    .insert(d)
+    .select()
+    .single();
+
+  if(error){
+    console.error('Error al guardar en Supabase:', error);
+    alert('No se pudo guardar el producto: ' + error.message);
+    return;
+  }
+
+  items.push(data);
+  localStorage.setItem(KEY, JSON.stringify(items));
+
+  e.target.reset();
+
+  alert('✅ Producto guardado en Supabase.');
+
+  await cargarProductos();
+};
+function render(){let q=(document.getElementById('search')?.value||'').toLowerCase(),rs=items.filter(i=>Object.values(i).some(v=>String(v).toLowerCase().includes(q)));
+document.getElementById('rows').innerHTML=rs.length?rs.map(i=>{let d=days(i.vencimiento),c=d!==null&&d<0?'bad':d!==null&&d<=30?'warn':'ok';return`<tr><td>${esc(i.codigo)}</td><td><b>${esc(i.nombre)}</b></td><td>${esc(i.categoria)}</td><td>${i.cantidad} ${esc(i.unidad)}</td><td><span class="badge ${c}">${esc(i.vencimiento||'—')}</span></td><td>${esc(i.ubicacion)}</td><td>${esc(i.alumno)}</td><td>${role==='docente'?`<button class="danger" onclick="del(${i.id})">🗑️</button>`:''}</td></tr>`}).join(''):'<tr><td colspan="8">Sin registros.</td></tr>';
+let v=items.filter(i=>{let d=days(i.vencimiento);return d!==null&&d<0}).length,p=items.filter(i=>{let d=days(i.vencimiento);return d!==null&&d>=0&&d<=30}).length;
+document.getElementById('total').textContent=items.length;document.getElementById('reg').textContent=items.length;document.getElementById('venc').textContent=v;document.getElementById('prox').textContent=p;
+let al=[];items.forEach(i=>{let d=days(i.vencimiento);if(d!==null&&d<0)al.push(`<div class="alert bad">⚠️ ${esc(i.nombre)}: vencido.</div>`);else if(d!==null&&d<=30)al.push(`<div class="alert warn">⏰ ${esc(i.nombre)}: vence en ${d} día(s).</div>`)});document.getElementById('alerts').innerHTML=al.join('')||'✅ Sin alertas.';
+document.getElementById('dtotal').textContent=items.length;document.getElementById('dalto').textContent=items.filter(i=>i.riesgo==='Alto').length;document.getElementById('dobs').textContent=items.filter(i=>i.envase!=='Bueno').length;document.getElementById('dalumnos').textContent=new Set(items.map(i=>i.alumno)).size;
+let cc={};items.forEach(i=>cc[i.categoria]=(cc[i.categoria]||0)+1);document.getElementById('cats').innerHTML=Object.entries(cc).map(([k,v])=>`<p><b>${esc(k)}</b>: ${v}</p>`).join('')||'Sin datos';
+let ss={};items.forEach(i=>ss[i.alumno]=(ss[i.alumno]||0)+1);document.getElementById('students').innerHTML=Object.entries(ss).map(([k,v])=>`<p>${esc(k)}: ${v} registro(s)</p>`).join('')||'Sin datos';
+let s=document.getElementById('label');s.innerHTML='<option value="">Seleccionar</option>'+items.map(i=>`<option value="${i.id}">${esc(i.codigo)} · ${esc(i.nombre)}</option>`).join('');label()}
+function del(id){if(confirm('¿Eliminar registro?')){items=items.filter(i=>i.id!==id);save()}}
+function label(){let i=items.find(x=>String(x.id)===document.getElementById('label').value);document.getElementById('labelout').innerHTML=i?`<div class="panel" style="border:2px solid #222;max-width:380px"><h2>🧪 ${esc(i.nombre)}</h2><p><b>Código:</b> ${esc(i.codigo)}</p><p><b>Categoría:</b> ${esc(i.categoria)}</p><p><b>Riesgo:</b> ${esc(i.riesgo)}</p><p><b>Vencimiento:</b> ${esc(i.vencimiento||'—')}</p><button onclick="print()">🖨️ Imprimir</button></div>`:''}
+function csv(){let h=['Código','Producto','Categoría','Estado','Cantidad','Unidad','Ingreso','Vencimiento','Ubicación','Riesgo','Envase','Observaciones','Alumno'],rows=items.map(i=>[i.codigo,i.nombre,i.categoria,i.estado,i.cantidad,i.unidad,i.ingreso,i.vencimiento,i.ubicacion,i.riesgo,i.envase,i.observaciones,i.alumno]),t=[h,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));a.download='mi_droguero_3_0_inventario.csv';a.click()}
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+cargarProductos();
+</script></body></html>
