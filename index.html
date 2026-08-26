@@ -229,7 +229,36 @@ let cc={};items.forEach(i=>cc[i.categoria]=(cc[i.categoria]||0)+1);document.getE
 let ss={};items.forEach(i=>ss[i.alumno]=(ss[i.alumno]||0)+1);document.getElementById('students').innerHTML=Object.entries(ss).map(([k,v])=>`<p>${esc(k)}: ${v} registro(s)</p>`).join('')||'Sin datos';
 let s=document.getElementById('label');s.innerHTML='<option value="">Seleccionar</option>'+items.map(i=>`<option value="${i.id}">${esc(i.codigo)} · ${esc(i.nombre)}</option>`).join('');label()}
 function del(id){if(confirm('¿Eliminar registro?')){items=items.filter(i=>i.id!==id);save()}}
-function label(){let i=items.find(x=>String(x.id)===document.getElementById('label').value);document.getElementById('labelout').innerHTML=i?`<div class="panel" style="border:2px solid #222;max-width:380px"><h2>🧪 ${esc(i.nombre)}</h2><p><b>Código:</b> ${esc(i.codigo)}</p><p><b>Categoría:</b> ${esc(i.categoria)}</p><p><b>Riesgo:</b> ${esc(i.riesgo)}</p><p><b>Vencimiento:</b> ${esc(i.vencimiento||'—')}</p><button onclick="print()">🖨️ Imprimir</button></div>`:''}
+function label(){
+  let i=items.find(x=>String(x.id)===document.getElementById('label').value);
+
+  if(!i){
+    document.getElementById('labelout').innerHTML='';
+    return;
+  }
+
+  let pictos = Array.isArray(i.pictogramas) ? i.pictogramas : [];
+
+  let pictogramasHTML = pictos.length
+    ? `<div style="margin:12px 0">
+        <b>Pictogramas SGA:</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          ${pictos.map(p=>`<span style="border:2px solid #b91c1c;padding:8px;border-radius:8px;font-weight:bold">${esc(p)}</span>`).join('')}
+        </div>
+      </div>`
+    : '';
+
+  document.getElementById('labelout').innerHTML=`
+    <div class="panel" style="border:2px solid #222;max-width:380px">
+      <h2>🧪 ${esc(i.nombre)}</h2>
+      <p><b>Código:</b> ${esc(i.codigo)}</p>
+      <p><b>Categoría:</b> ${esc(i.categoria)}</p>
+      <p><b>Riesgo:</b> ${esc(i.riesgo)}</p>
+      ${pictogramasHTML}
+      <p><b>Vencimiento:</b> ${esc(i.vencimiento||'—')}</p>
+      <button onclick="print()">🖨️ Imprimir</button>
+    </div>`;
+}
 function csv(){let h=['Código','Producto','Categoría','Estado','Cantidad','Unidad','Ingreso','Vencimiento','Ubicación','Riesgo','Envase','Observaciones','Alumno'],rows=items.map(i=>[i.codigo,i.nombre,i.categoria,i.estado,i.cantidad,i.unidad,i.ingreso,i.vencimiento,i.ubicacion,i.riesgo,i.envase,i.observaciones,i.alumno]),t=[h,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));a.download='mi_droguero_3_0_inventario.csv';a.click()}
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
