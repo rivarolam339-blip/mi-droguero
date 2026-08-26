@@ -1,4 +1,4 @@
-const C = "mi-droguero-3-v2";
+const C = "mi-droguero-3-v3";
 
 self.addEventListener("install", e =>
   e.waitUntil(
