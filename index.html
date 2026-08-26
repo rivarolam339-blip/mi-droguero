@@ -194,6 +194,7 @@ let d = Object.fromEntries(new FormData(e.target));
   d.pictogramas = [...document.querySelectorAll('input[name="pictogramas"]:checked')]
   .map(x => x.value)
   .join(',');
+  console.log("PICTOGRAMAS ANTES DE GUARDAR:", d.pictogramas);
   delete d.id;
   d.cantidad = Number(d.cantidad);
   d.alumno = role === 'alumno' ? 'Alumno' : 'Docente';
