@@ -202,8 +202,10 @@ async function cargarProductos(){
 }
 document.getElementById('form').onsubmit = async e => {
   e.preventDefault();
+let d = Object.fromEntries(new FormData(e.target));
 
-  let d = Object.fromEntries(new FormData(e.target));
+d.pictogramas = [...e.target.querySelectorAll('input[name="pictogramas"]:checked')]
+  .map(x => x.value);
 
   delete d.id;
   d.cantidad = Number(d.cantidad);
