@@ -49,7 +49,40 @@ nav button{white-space:nowrap;background:#e8eeea;color:#172018;border-radius:20p
 <div><label>Estado físico</label><select name="estado"><option>Sólido</option><option>Líquido</option><option>Gaseoso</option><option>Simulado</option></select></div>
 <div><label>Cantidad *</label><input name="cantidad" type="number" min="0" step=".01" required></div><div><label>Unidad</label><select name="unidad"><option>unidades</option><option>mL</option><option>L</option><option>g</option><option>kg</option></select></div>
 <div><label>Fecha de ingreso</label><input name="ingreso" type="date"></div><div><label>Fecha de vencimiento</label><input name="vencimiento" type="date"></div>
-<div><label>Ubicación</label><input name="ubicacion"></div><div><label>Riesgo</label><select name="riesgo"><option>Bajo</option><option>Medio</option><option>Alto</option></select></div>
+<div><label>Ubicación</label><input name="ubicacion"></div>
+
+<div>
+  <label>Riesgo</label>
+  <select name="riesgo">
+    <option>Bajo</option>
+    <option>Medio</option>
+    <option>Alto</option>
+  </select>
+</div>
+
+<div class="full">
+  <label>Pictogramas de peligro SGA</label>
+  <div class="ghs-grid">
+    <label><input type="checkbox" name="pictogramas" value="GHS01"> GHS01 - Explosivo</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS02"> GHS02 - Inflamable</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS03"> GHS03 - Comburente</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS04"> GHS04 - Gas a presión</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS05"> GHS05 - Corrosivo</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS06"> GHS06 - Toxicidad aguda</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS07"> GHS07 - Irritante / nocivo</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS08"> GHS08 - Peligro grave para la salud</label>
+    <label><input type="checkbox" name="pictogramas" value="GHS09"> GHS09 - Peligroso para el ambiente</label>
+  </div>
+</div>
+
+<div>
+  <label>Estado del envase</label>
+  <select name="envase">
+    <option>Bueno</option>
+    <option>Con observaciones</option>
+    <option>Dañado</option>
+  </select>
+</div>
 <div><label>Estado del envase</label><div class="full">
   <label>Pictogramas de peligro SGA</label>
  <div class="full">
