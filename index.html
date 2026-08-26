@@ -182,6 +182,7 @@ async function cargarProductos(){
   }
 
   items = data || [];
+  console.log("PRODUCTO DESDE SUPABASE:", items);
 
   localStorage.setItem(KEY, JSON.stringify(items));
 
