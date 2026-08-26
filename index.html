@@ -237,7 +237,9 @@ function label(){
     return;
   }
 
-  let pictos = i.pictogramas || [];
+ let pictos = i.pictogramas
+  ? String(i.pictogramas).split(',').filter(Boolean)
+  : [];
 
   if(typeof pictos === 'string'){
     try{
