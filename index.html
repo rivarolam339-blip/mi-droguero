@@ -237,16 +237,39 @@ function label(){
     return;
   }
 
-  let pictos = Array.isArray(i.pictogramas) ? i.pictogramas : [];
+  let pictos = i.pictogramas || [];
+
+  if(typeof pictos === 'string'){
+    try{
+      pictos = JSON.parse(pictos);
+    }catch(e){
+      pictos = pictos.replace(/[{}"]/g,'').split(',').filter(Boolean);
+    }
+  }
+
+  if(!Array.isArray(pictos)){
+    pictos = [];
+  }
 
   let pictogramasHTML = pictos.length
-    ? `<div style="margin:12px 0">
-        <b>Pictogramas SGA:</b>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-          ${pictos.map(p=>`<span style="border:2px solid #b91c1c;padding:8px;border-radius:8px;font-weight:bold">${esc(p)}</span>`).join('')}
+    ? `<div style="margin:15px 0">
+        <p><b>Pictogramas SGA:</b></p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          ${pictos.map(p=>`
+            <div style="
+              border:3px solid #b91c1c;
+              padding:10px;
+              min-width:75px;
+              text-align:center;
+              font-weight:bold;
+              background:#fff;
+            ">
+              ${esc(p)}
+            </div>
+          `).join('')}
         </div>
       </div>`
-    : '';
+    : '<p><b>Pictogramas SGA:</b> Ninguno seleccionado</p>';
 
   document.getElementById('labelout').innerHTML=`
     <div class="panel" style="border:2px solid #222;max-width:380px">
