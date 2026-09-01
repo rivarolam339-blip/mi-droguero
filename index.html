@@ -231,59 +231,74 @@ let ss={};items.forEach(i=>ss[i.alumno]=(ss[i.alumno]||0)+1);document.getElement
 let s=document.getElementById('label');s.innerHTML='<option value="">Seleccionar</option>'+items.map(i=>`<option value="${i.id}">${esc(i.codigo)} · ${esc(i.nombre)}</option>`).join('');label()}
 function del(id){if(confirm('¿Eliminar registro?')){items=items.filter(i=>i.id!==id);save()}}
 function label(){
-  let i=items.find(x=>String(x.id)===document.getElementById('label').value);
+  let i=items.find(
+    x=>String(x.id)===document.getElementById('label').value
+  );
 
   if(!i){
     document.getElementById('labelout').innerHTML='';
     return;
   }
 
- let pictos = i.pictogramas
-  ? String(i.pictogramas).split(',').filter(Boolean)
-  : [];
+  let pictos=[];
 
-  if(typeof pictos === 'string'){
-    try{
-      pictos = JSON.parse(pictos);
-    }catch(e){
-      pictos = pictos.replace(/[{}"]/g,'').split(',').filter(Boolean);
-    }
+  if(i.pictogramas){
+    pictos=String(i.pictogramas)
+      .split(',')
+      .map(x=>x.trim())
+      .filter(Boolean);
   }
 
-  if(!Array.isArray(pictos)){
-    pictos = [];
-  }
-
-  let pictogramasHTML = pictos.length
-    ? `<div style="margin:15px 0">
-        <p><b>Pictogramas SGA:</b></p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          ${pictos.map(p=>`
-            <div style="
-              border:3px solid #b91c1c;
-              padding:10px;
-              min-width:75px;
-              text-align:center;
-              font-weight:bold;
-              background:#fff;
-            ">
-              ${esc(p)}
-            </div>
-          `).join('')}
-        </div>
-      </div>`
-    : '<p><b>Pictogramas SGA:</b> Ninguno seleccionado</p>';
+  let pictogramasHTML=pictos.length
+    ? `
+      <div style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        justify-content:center;
+        margin:15px 0;
+      ">
+        ${pictos.map(p=>`
+          <img
+            src="pictogramas/${esc(p)}.png"
+            alt="${esc(p)}"
+            title="${esc(p)}"
+            style="
+              width:75px;
+              height:75px;
+              object-fit:contain;
+            "
+          >
+        `).join('')}
+      </div>
+    `
+    : '<p><b>Pictogramas:</b> Ninguno seleccionado.</p>';
 
   document.getElementById('labelout').innerHTML=`
-    <div class="panel" style="border:2px solid #222;max-width:380px">
-      <h2>🧪 ${esc(i.nombre)}</h2>
+    <div class="panel"
+      style="
+        border:2px solid #222;
+        max-width:380px;
+        margin:auto;
+        text-align:center;
+      ">
+
+      <h2>${esc(i.nombre)}</h2>
+
       <p><b>Código:</b> ${esc(i.codigo)}</p>
+
       <p><b>Categoría:</b> ${esc(i.categoria)}</p>
+
       <p><b>Riesgo:</b> ${esc(i.riesgo)}</p>
-      ${pictogramasHTML}
+
       <p><b>Vencimiento:</b> ${esc(i.vencimiento||'—')}</p>
-      <button onclick="print()">🖨️ Imprimir</button>
-    </div>`;
+
+      ${pictogramasHTML}
+
+      <button onclick="window.print()">Imprimir</button>
+
+    </div>
+  `;
 }
 function csv(){let h=['Código','Producto','Categoría','Estado','Cantidad','Unidad','Ingreso','Vencimiento','Ubicación','Riesgo','Envase','Observaciones','Alumno'],rows=items.map(i=>[i.codigo,i.nombre,i.categoria,i.estado,i.cantidad,i.unidad,i.ingreso,i.vencimiento,i.ubicacion,i.riesgo,i.envase,i.observaciones,i.alumno]),t=[h,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));a.download='mi_droguero_3_0_inventario.csv';a.click()}
 if('serviceWorker' in navigator){
