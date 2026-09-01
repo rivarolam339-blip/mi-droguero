@@ -256,15 +256,27 @@ function label(){
 
   let pictos=[];
 
- if(i.pictogramas){
-  if(Array.isArray(i.pictogramas)){
-    pictos=i.pictogramas;
-  }else{
-    pictos=String(i.pictogramas)
-      .replace(/[\[\]"]/g,'')
-      .split(',')
-      .map(x=>x.trim())
+if(i.pictogramas){
+  try{
+    if(Array.isArray(i.pictogramas)){
+      pictos=i.pictogramas;
+    }else{
+      const valor=String(i.pictogramas).trim();
+
+      if(valor.startsWith('[')){
+        pictos=JSON.parse(valor);
+      }else{
+        pictos=valor.split(',');
+      }
+    }
+
+    pictos=pictos
+      .map(x=>String(x).trim())
       .filter(Boolean);
+
+  }catch(error){
+    console.error('Error leyendo pictogramas:', error);
+    pictos=[];
   }
 }
 
