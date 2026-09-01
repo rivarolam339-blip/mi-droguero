@@ -141,15 +141,29 @@ async function entrar(r){
     return;
   }
 
-  if(!data.session){
-    alert('El usuario fue reconocido, pero no se creó una sesión.');
-    return;
-  }
+ if(!data.session){
+  alert('El usuario fue reconocido, pero no se creó una sesión.');
+  return;
+}
 
-  role = r;
+const { data: perfil, error: perfilError } = await db
+  .from('perfiles')
+  .select('id, nombre, rol')
+  .eq('id', data.user.id)
+  .single();
 
-  loginEl('login', true);
-  loginEl('app', false);
+if(perfilError || !perfil){
+  await db.auth.signOut();
+  alert('El usuario ingresó correctamente, pero no tiene un perfil asignado.');
+  return;
+}
+
+role = perfil.rol;
+
+console.log('USUARIO:', data.user.email);
+console.log('PERFIL:', perfil);
+
+loginEl('login', true);
 
   document
     .getElementById('docnav')
