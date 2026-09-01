@@ -242,12 +242,17 @@ function label(){
 
   let pictos=[];
 console.log("PICTOGRAMAS DE ESTE PRODUCTO:", i.pictogramas);
-  if(i.pictogramas){
+ if(i.pictogramas){
+  if(Array.isArray(i.pictogramas)){
+    pictos=i.pictogramas;
+  }else{
     pictos=String(i.pictogramas)
+      .replace(/[\[\]"]/g,'')
       .split(',')
       .map(x=>x.trim())
       .filter(Boolean);
   }
+}
 
   let pictogramasHTML=pictos.length
     ? `
